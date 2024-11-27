@@ -221,16 +221,8 @@ class App {
           <span class="workout__value">${workout.duration}</span>
           <span class="workout__unit">мин</span>
         </div>
+        ${workout.setHtml()}
     `;
-
-    if (workout.type === 'running') {
-      html += workout.setHtml();
-    }
-
-    if (workout.type === 'cycling') {
-      html += workout.setHtml();
-    }
-
     form.insertAdjacentHTML('afterend', html);
   }
 
