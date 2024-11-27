@@ -41,6 +41,22 @@ class Running extends Workout {
     // min/km
     this.pace = this.duration / this.distance;
   }
+
+  setHtml(){
+    return `
+        <div class="workout__details">
+          <span class="workout__icon">📏⏱</span>
+          <span class="workout__value">${this.pace.toFixed(2)}</span>
+          <span class="workout__unit">мин/км</span>
+        </div>
+        <div class="workout__details">
+          <span class="workout__icon">👟⏱</span>
+          <span class="workout__value">${this.temp}</span>
+          <span class="workout__unit">шаг/мин</span>
+        </div>
+      </li>
+      `;
+  }
 }
 
 class Cycling extends Workout {
@@ -56,6 +72,22 @@ class Cycling extends Workout {
   calculateSpeed () {
     // km/h
     this.speed = this.distance / (this.duration / 60);
+  }
+
+  setHtml(){
+    return ` 
+        <div class="workout__details">
+          <span class="workout__icon">📏⏱</span>
+          <span class="workout__value">${this.speed.toFixed(2)}</span>
+          <span class="workout__unit">км/ч</span>
+        </div>
+        <div class="workout__details">
+          <span class="workout__icon">🏔</span>
+          <span class="workout__value">${this.climb}</span>
+          <span class="workout__unit">м</span>
+        </div>
+      </li>
+      `;
   }
 }
 
@@ -192,34 +224,11 @@ class App {
     `;
 
     if (workout.type === 'running') {
-      html += `
-        <div class="workout__details">
-          <span class="workout__icon">📏⏱</span>
-          <span class="workout__value">${workout.pace.toFixed(2)}</span>
-          <span class="workout__unit">мин/км</span>
-        </div>
-        <div class="workout__details">
-          <span class="workout__icon">👟⏱</span>
-          <span class="workout__value">${workout.temp}</span>
-          <span class="workout__unit">шаг/мин</span>
-        </div>
-      </li>
-      `;
+      html += workout.setHtml();
     }
 
     if (workout.type === 'cycling') {
-      html += ` 
-      <div class="workout__details">
-        <span class="workout__icon">📏⏱</span>
-        <span class="workout__value">${workout.speed.toFixed(2)}</span>
-        <span class="workout__unit">км/ч</span>
-      </div>
-      <div class="workout__details">
-        <span class="workout__icon">🏔</span>
-        <span class="workout__value">${workout.climb}</span>
-        <span class="workout__unit">м</span>
-      </div>
-      `;
+      html += workout.setHtml();
     }
 
     form.insertAdjacentHTML('afterend', html);
