@@ -42,7 +42,7 @@ class Running extends Workout {
     this.pace = this.duration / this.distance;
   }
 
-  setHtml(){
+  setHtml () {
     return `
         <div class="workout__details">
           <span class="workout__icon">📏⏱</span>
@@ -74,7 +74,7 @@ class Cycling extends Workout {
     this.speed = this.distance / (this.duration / 60);
   }
 
-  setHtml(){
+  setHtml () {
     return ` 
         <div class="workout__details">
           <span class="workout__icon">📏⏱</span>
@@ -97,7 +97,13 @@ class App {
   #workouts = [];
 
   constructor () {
+    //Получение местоположения пользователя
     this._getPosition();
+
+    //Получение данных из LocalStorage
+    this._getLocalStorageData();
+
+    // Доавление обработчиков событий
     form.addEventListener('submit', this._newWorkout.bind(this));
     inputType.addEventListener('change', this._toggleClimbField);
     containerWorkouts.addEventListener('click', this._moveToWorkout.bind(this));
@@ -123,6 +129,11 @@ class App {
 
     // Обработка кликов на карте
     this.#map.on('click', this._showForm.bind(this));
+
+    //Оторбражение тренировок из LocalStorage на карте
+    this.#workouts.forEach(workout => {
+      this._displayWorkout(workout);
+    });
   }
 
   _showForm (event) {
@@ -191,6 +202,9 @@ class App {
     // Спрятать форму и очистить поля ввода данных
     this._hideForm();
     inputDistance.value = inputDuration.value = inputTemp.value = inputClimb.value = '';
+
+    // Добавление тренировок в LocalStorage
+    this._addWorkoutsToLocalStorage();
   }
 
   _displayWorkout (workout) {
@@ -226,20 +240,49 @@ class App {
     form.insertAdjacentHTML('afterend', html);
   }
 
-  _moveToWorkout(event){
+  _moveToWorkout (event) {
     const workoutElement = event.target.closest('.workout');
 
-    if(!workoutElement) return;
+    if (!workoutElement) return;
 
     const workout = this.#workouts.find(
       item => item.id === workoutElement.dataset.id);
 
-    this.#map.setView(workout.coords, 13,{
-      animate:true,
+    this.#map.setView(workout.coords, 13, {
+      animate: true,
       pan: {
         duration: 1,
       },
     });
+  }
+
+  _addWorkoutsToLocalStorage () {
+    localStorage.setItem('workouts', JSON.stringify(this.#workouts));
+  }
+
+  _getLocalStorageData () {
+    const data = JSON.parse(localStorage.getItem('workouts'));
+
+    if (!data) return;
+
+    // Когда достаём из LocalStorage данные, то они теряют свою связь с прототипами классов
+    // Вручную преобразовываем объекты в экземпляры нужных классов
+    this.#workouts = data.map(workout => {
+      if (workout.type === 'running') {
+        return Object.assign(new Running(), workout);
+      }
+      if (workout.type === 'cycling') {
+        return Object.assign(new Cycling(), workout);
+      }
+    });
+    this.#workouts.forEach(workout => {
+      this._displayWorkoutOnSidebar(workout);
+    });
+  }
+
+  reset(){
+    localStorage.removeItem('workouts');
+    location.reload();
   }
 }
 
